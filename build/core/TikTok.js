@@ -1,8 +1,12 @@
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+    return (mod && mod.__esModule) ? mod : {
+        "default": mod
+    };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 exports.TikTokScraper = void 0;
 const request_promise_1 = __importDefault(require("request-promise"));
 const os_1 = require("os");
@@ -17,7 +21,35 @@ const constant_1 = __importDefault(require("../constant"));
 const helpers_1 = require("../helpers");
 const core_1 = require("../core");
 class TikTokScraper extends events_1.EventEmitter {
-    constructor({ download, filepath, filetype, proxy, asyncDownload, cli = false, event = false, progress = false, input, number, type, by_user_id = false, store_history = false, historyPath = '', noWaterMark = false, fileName = '', timeout = 0, bulk = false, zip = false, test = false, hdVideo = false, signature = '', webHookUrl = '', method = 'POST', headers, verifyFp = '', sessionList = [], }) {
+    constructor({
+        download,
+        filepath,
+        filetype,
+        proxy,
+        asyncDownload,
+        cli = false,
+        event = false,
+        progress = false,
+        input,
+        number,
+        type,
+        by_user_id = false,
+        store_history = false,
+        historyPath = '',
+        noWaterMark = false,
+        fileName = '',
+        timeout = 0,
+        bulk = false,
+        zip = false,
+        test = false,
+        hdVideo = false,
+        signature = '',
+        webHookUrl = '',
+        method = 'POST',
+        headers,
+        verifyFp = '',
+        sessionList = [],
+    }) {
         super();
         this.storeValue = '';
         this.verifyFp = verifyFp;
@@ -26,7 +58,9 @@ class TikTokScraper extends events_1.EventEmitter {
         this.download = download;
         this.filepath = process.env.SCRAPING_FROM_DOCKER ? '/usr/app/files' : filepath || '';
         this.fileName = fileName;
-        this.json2csvParser = new json2csv_1.Parser({ flatten: true });
+        this.json2csvParser = new json2csv_1.Parser({
+            flatten: true
+        });
         this.filetype = filetype;
         this.input = input;
         this.test = test;
@@ -50,7 +84,10 @@ class TikTokScraper extends events_1.EventEmitter {
         this.event = event;
         this.scrapeType = type;
         this.cli = cli;
-        this.spinner = ora_1.default({ text: 'TikTok Scraper Started', stream: process.stdout });
+        this.spinner = ora_1.default({
+            text: 'TikTok Scraper Started',
+            stream: process.stdout
+        });
         this.byUserId = by_user_id;
         this.storeHistory = cli && download && store_history;
         this.historyPath = process.env.SCRAPING_FROM_DOCKER ? '/usr/app/files' : historyPath || os_1.tmpdir();
@@ -144,18 +181,48 @@ class TikTokScraper extends events_1.EventEmitter {
             proxy: this.proxy,
         };
     }
-    request({ uri, method, qs, body, form, headers, json, gzip }) {
+    request({
+        uri,
+        method,
+        qs,
+        body,
+        form,
+        headers,
+        json,
+        gzip
+    }) {
         return new Promise(async (resolve, reject) => {
             const proxy = this.getProxy;
-            const options = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({ uri,
-                method }, (qs ? { qs } : {})), (body ? { body } : {})), (form ? { form } : {})), { headers: Object.assign(Object.assign({}, this.headers), headers) }), (json ? { json: true } : {})), (gzip ? { gzip: true } : {})), { resolveWithFullResponse: true }), (proxy.proxy && proxy.socks ? { agent: proxy.proxy } : {})), (proxy.proxy && !proxy.socks ? { proxy: `http://${proxy.proxy}/` } : {})), { timeout: 10000 });
+            const options = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({
+                uri,
+                method
+            }, (qs ? {
+                qs
+            } : {})), (body ? {
+                body
+            } : {})), (form ? {
+                form
+            } : {})), {
+                headers: Object.assign(Object.assign({}, this.headers), headers)
+            }), (json ? {
+                json: true
+            } : {})), (gzip ? {
+                gzip: true
+            } : {})), {
+                resolveWithFullResponse: true
+            }), (proxy.proxy && proxy.socks ? {
+                agent: proxy.proxy
+            } : {})), (proxy.proxy && !proxy.socks ? {
+                proxy: `http://${proxy.proxy}/`
+            } : {})), {
+                timeout: 10000
+            });
             try {
                 const response = await request_promise_1.default(options);
                 setTimeout(() => {
                     resolve(response.body);
                 }, this.timeout);
-            }
-            catch (error) {
+            } catch (error) {
                 reject(error);
             }
         });
@@ -166,8 +233,7 @@ class TikTokScraper extends events_1.EventEmitter {
         }
         if (this.event) {
             this.emit('error', error);
-        }
-        else {
+        } else {
             throw error;
         }
     }
@@ -177,9 +243,10 @@ class TikTokScraper extends events_1.EventEmitter {
         }
         if (this.download && !this.zip) {
             try {
-                await bluebird_1.fromCallback(cb => fs_1.mkdir(this.folderDestination, { recursive: true }, cb));
-            }
-            catch (error) {
+                await bluebird_1.fromCallback(cb => fs_1.mkdir(this.folderDestination, {
+                    recursive: true
+                }, cb));
+            } catch (error) {
                 return this.returnInitError(error.message);
             }
         }
@@ -203,18 +270,32 @@ class TikTokScraper extends events_1.EventEmitter {
         if (this.webHookUrl) {
             await this.sendDataToWebHookUrl();
         }
-        return Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({ headers: this.headers, collector: this.collector }, (this.download ? { zip } : {})), (this.filetype === 'all' ? { json, csv } : {})), (this.filetype === 'json' ? { json } : {})), (this.filetype === 'csv' ? { csv } : {})), (this.webHookUrl ? { webhook: this.httpRequests } : {}));
+        return Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({
+            headers: this.headers,
+            collector: this.collector
+        }, (this.download ? {
+            zip
+        } : {})), (this.filetype === 'all' ? {
+            json,
+            csv
+        } : {})), (this.filetype === 'json' ? {
+            json
+        } : {})), (this.filetype === 'csv' ? {
+            csv
+        } : {})), (this.webHookUrl ? {
+            webhook: this.httpRequests
+        } : {}));
     }
     withoutWatermark() {
         return new Promise(resolve => {
             async_1.forEachLimit(this.collector, 5, (item, cb) => {
                 this.extractVideoId(item)
                     .then(video => {
-                    if (video) {
-                        item.videoUrlNoWaterMark = video;
-                    }
-                    cb(null);
-                })
+                        if (video) {
+                            item.videoUrlNoWaterMark = video;
+                        }
+                        cb(null);
+                    })
                     .catch(() => cb(null));
             }, () => {
                 resolve();
@@ -236,37 +317,45 @@ class TikTokScraper extends events_1.EventEmitter {
                     .toString();
                 return `https://api2-16-h2.musical.ly/aweme/v1/play/?video_id=${id}&vr_type=0&is_play_url=1&source=PackSourceEnum_PUBLISH&media_type=4${this.hdVideo ? `&ratio=default&improve_bitrate=1` : ''}`;
             }
-        }
-        catch (_a) {
-        }
+        } catch (_a) {}
         return null;
     }
     mainLoop() {
         return new Promise(resolve => {
-            const taskArray = Array.from({ length: 1000 }, (v, k) => k + 1);
+            const taskArray = Array.from({
+                length: 1000
+            }, (v, k) => k + 1);
             async_1.forEachLimit(taskArray, this.asyncScraping(), (item, cb) => {
                 switch (this.scrapeType) {
                     case 'user':
                         this.getUserId()
-                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), { maxCursor: this.maxCursor })))
+                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), {
+                                maxCursor: this.maxCursor
+                            })))
                             .then(() => cb(null))
                             .catch(error => cb(error));
                         break;
                     case 'hashtag':
                         this.getHashTagId()
-                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), { cursor: item === 1 ? 0 : (item - 1) * query.count }), true))
+                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), {
+                                cursor: item === 1 ? 0 : (item - 1) * query.count
+                            }), true))
                             .then(() => cb(null))
                             .catch(error => cb(error));
                         break;
                     case 'trend':
                         this.getTrendingFeedQuery()
-                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), { maxCursor: this.maxCursor })))
+                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), {
+                                maxCursor: this.maxCursor
+                            })))
                             .then(() => cb(null))
                             .catch(error => cb(error));
                         break;
                     case 'music':
                         this.getMusicFeedQuery()
-                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), { cursor: item === 1 ? 0 : (item - 1) * query.count }), true))
+                            .then(query => this.submitScrapingRequest(Object.assign(Object.assign({}, query), {
+                                cursor: item === 1 ? 0 : (item - 1) * query.count
+                            }), true))
                             .then(() => cb(null))
                             .catch(error => cb(error));
                         break;
@@ -284,7 +373,11 @@ class TikTokScraper extends events_1.EventEmitter {
             if (result.statusCode !== 0) {
                 throw new Error(`Can't scrape more posts`);
             }
-            const { hasMore, maxCursor, cursor } = result;
+            const {
+                hasMore,
+                maxCursor,
+                cursor
+            } = result;
             if ((updatedApiResponse && !result.itemList) || (!updatedApiResponse && !result.items)) {
                 throw new Error('No more posts');
             }
@@ -296,8 +389,7 @@ class TikTokScraper extends events_1.EventEmitter {
                 throw new Error('Done');
             }
             this.maxCursor = parseInt(maxCursor === 'undefined' ? cursor : maxCursor, 10);
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -323,14 +415,20 @@ class TikTokScraper extends events_1.EventEmitter {
             json = `${this.fileDestination}.json`;
             csv = `${this.fileDestination}.csv`;
             zip = this.zip ? `${this.fileDestination}.zip` : this.folderDestination;
-            await this.saveMetadata({ json, csv });
+            await this.saveMetadata({
+                json,
+                csv
+            });
         }
         if (this.cli) {
             this.spinner.stop();
         }
         return [json, csv, zip];
     }
-    async saveMetadata({ json, csv }) {
+    async saveMetadata({
+        json,
+        csv
+    }) {
         if (this.collector.length) {
             switch (this.filetype) {
                 case 'json':
@@ -355,10 +453,11 @@ class TikTokScraper extends events_1.EventEmitter {
         if (this.storeValue) {
             let history = {};
             try {
-                const readFromStore = (await bluebird_1.fromCallback(cb => fs_1.readFile(`${this.historyPath}/tiktok_history.json`, { encoding: 'utf-8' }, cb)));
+                const readFromStore = (await bluebird_1.fromCallback(cb => fs_1.readFile(`${this.historyPath}/tiktok_history.json`, {
+                    encoding: 'utf-8'
+                }, cb)));
                 history = JSON.parse(readFromStore);
-            }
-            catch (error) {
+            } catch (error) {
                 history[historyType] = {
                     type: this.scrapeType,
                     input: this.input,
@@ -378,17 +477,17 @@ class TikTokScraper extends events_1.EventEmitter {
             }
             let store;
             try {
-                const readFromStore = (await bluebird_1.fromCallback(cb => fs_1.readFile(`${this.historyPath}/${this.storeValue}.json`, { encoding: 'utf-8' }, cb)));
+                const readFromStore = (await bluebird_1.fromCallback(cb => fs_1.readFile(`${this.historyPath}/${this.storeValue}.json`, {
+                    encoding: 'utf-8'
+                }, cb)));
                 store = JSON.parse(readFromStore);
-            }
-            catch (error) {
+            } catch (error) {
                 store = [];
             }
             this.collector = this.collector.map(item => {
                 if (store.indexOf(item.id) === -1) {
                     store.push(item.id);
-                }
-                else {
+                } else {
                     item.repeated = true;
                 }
                 return item;
@@ -403,14 +502,10 @@ class TikTokScraper extends events_1.EventEmitter {
             };
             try {
                 await bluebird_1.fromCallback(cb => fs_1.writeFile(`${this.historyPath}/${this.storeValue}.json`, JSON.stringify(store), cb));
-            }
-            catch (error) {
-            }
+            } catch (error) {}
             try {
                 await bluebird_1.fromCallback(cb => fs_1.writeFile(`${this.historyPath}/tiktok_history.json`, JSON.stringify(history), cb));
-            }
-            catch (error) {
-            }
+            } catch (error) {}
         }
     }
     collectPosts(posts) {
@@ -422,7 +517,11 @@ class TikTokScraper extends events_1.EventEmitter {
             }
             if (this.noDuplicates.indexOf(posts[i].id) === -1) {
                 this.noDuplicates.push(posts[i].id);
-                const item = Object.assign(Object.assign({ id: posts[i].id, text: posts[i].desc, createTime: posts[i].createTime, authorMeta: {
+                const item = Object.assign(Object.assign({
+                    id: posts[i].id,
+                    text: posts[i].desc,
+                    createTime: posts[i].createTime,
+                    authorMeta: {
                         id: posts[i].author.id,
                         secUid: posts[i].author.secUid,
                         name: posts[i].author.uniqueId,
@@ -430,8 +529,9 @@ class TikTokScraper extends events_1.EventEmitter {
                         verified: posts[i].author.verified,
                         signature: posts[i].author.signature,
                         avatar: posts[i].author.avatarLarger,
-                    } }, (posts[i].music
-                    ? {
+                    }
+                }, (posts[i].music ?
+                    {
                         musicMeta: {
                             musicId: posts[i].music.id,
                             musicName: posts[i].music.title,
@@ -442,28 +542,45 @@ class TikTokScraper extends events_1.EventEmitter {
                             coverMedium: posts[i].music.coverMedium,
                             coverLarge: posts[i].music.coverLarge,
                         },
-                    }
-                    : {})), { covers: {
+                    } :
+                    {})), {
+                    covers: {
                         default: posts[i].video.cover,
                         origin: posts[i].video.originCover,
                         dynamic: posts[i].video.dynamicCover,
-                    }, webVideoUrl: `https://www.tiktok.com/@${posts[i].author.uniqueId}/video/${posts[i].id}`, videoUrl: posts[i].video.downloadAddr, videoUrlNoWaterMark: '', videoMeta: {
+                    },
+                    webVideoUrl: `https://www.tiktok.com/@${posts[i].author.uniqueId}/video/${posts[i].id}`,
+                    videoUrl: posts[i].video.downloadAddr,
+                    videoUrlNoWaterMark: '',
+                    videoMeta: {
                         height: posts[i].video.height,
                         width: posts[i].video.width,
                         duration: posts[i].video.duration,
-                    }, diggCount: posts[i].stats.diggCount, shareCount: posts[i].stats.shareCount, playCount: posts[i].stats.playCount, commentCount: posts[i].stats.commentCount, downloaded: false, mentions: posts[i].desc.match(/(@\w+)/g) || [], hashtags: posts[i].challenges
-                        ? posts[i].challenges.map(({ id, title, desc, coverLarger }) => ({
+                    },
+                    diggCount: posts[i].stats.diggCount,
+                    shareCount: posts[i].stats.shareCount,
+                    playCount: posts[i].stats.playCount,
+                    commentCount: posts[i].stats.commentCount,
+                    downloaded: false,
+                    mentions: posts[i].desc.match(/(@\w+)/g) || [],
+                    hashtags: posts[i].challenges ?
+                        posts[i].challenges.map(({
+                            id,
+                            title,
+                            desc,
+                            coverLarger
+                        }) => ({
                             id,
                             name: title,
                             title: desc,
                             cover: coverLarger,
-                        }))
-                        : [] });
+                        })) :
+                        []
+                });
                 if (this.event) {
                     this.emit('data', item);
                     this.collector.push({});
-                }
-                else {
+                } else {
                     this.collector.push(item);
                 }
             }
@@ -480,7 +597,9 @@ class TikTokScraper extends events_1.EventEmitter {
         const options = {
             uri: this.getApiEndpoint,
             method: 'GET',
-            qs: Object.assign(Object.assign({}, qs), { _signature: signature }),
+            qs: Object.assign(Object.assign({}, qs), {
+                _signature: signature
+            }),
             headers: {
                 cookie: this.getCookies(true),
             },
@@ -489,8 +608,7 @@ class TikTokScraper extends events_1.EventEmitter {
         try {
             const response = await this.request(options);
             return response;
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -556,8 +674,7 @@ class TikTokScraper extends events_1.EventEmitter {
                 verifyFp: this.verifyFp,
                 user_agent: this.headers['user-agent'],
             };
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -592,8 +709,7 @@ class TikTokScraper extends events_1.EventEmitter {
                 lang: '',
                 verifyFp: this.verifyFp,
             };
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -616,8 +732,7 @@ class TikTokScraper extends events_1.EventEmitter {
                 return userMetadata.props.pageProps.userInfo;
             }
             throw new Error(`Can't extract user metadata from the html page`);
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -654,8 +769,7 @@ class TikTokScraper extends events_1.EventEmitter {
                 throw new Error(`Can't find hashtag: ${this.input}`);
             }
             return response.challengeInfo;
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -689,8 +803,7 @@ class TikTokScraper extends events_1.EventEmitter {
                 throw new Error(`Can't find music data: ${this.input}`);
             }
             return response.musicInfo;
-        }
-        catch (error) {
+        } catch (error) {
             throw error.message;
         }
     }
@@ -721,8 +834,7 @@ class TikTokScraper extends events_1.EventEmitter {
             }
             if (short) {
                 regex = /<script>window.__INIT_PROPS__ = ([^]*)\}<\/script>/.exec(response);
-            }
-            else {
+            } else {
                 regex = /<script id="__NEXT_DATA__" type="application\/json" crossorigin="anonymous">(.+)<\/script><script cros/.exec(response);
             }
             if (regex) {
@@ -733,18 +845,15 @@ class TikTokScraper extends events_1.EventEmitter {
                         if (videoProps['/v/:id'].statusCode) {
                             throw new Error();
                         }
-                    }
-                    else if (videoProps['/i18n/share/video/:id']) {
+                    } else if (videoProps['/i18n/share/video/:id']) {
                         shortKey = '/i18n/share/video/:id';
                         if (videoProps['/i18n/share/video/:id'].statusCode) {
                             throw new Error();
                         }
-                    }
-                    else {
+                    } else {
                         throw new Error();
                     }
-                }
-                else if (videoProps.props.pageProps.statusCode) {
+                } else if (videoProps.props.pageProps.statusCode) {
                     throw new Error();
                 }
                 const videoData = short ? videoProps[shortKey].videoData : videoProps.props.pageProps.itemInfo.itemStruct;
@@ -795,42 +904,56 @@ class TikTokScraper extends events_1.EventEmitter {
                     commentCount: videoData.stats.commentCount,
                     downloaded: false,
                     mentions: videoData.desc.match(/(@\w+)/g) || [],
-                    hashtags: videoData.challenges
-                        ? videoData.challenges.map(({ id, title, desc, profileLarger }) => ({
+                    hashtags: videoData.challenges ?
+                        videoData.challenges.map(({
+                            id,
+                            title,
+                            desc,
+                            profileLarger
+                        }) => ({
                             id,
                             name: title,
                             title: desc,
                             cover: profileLarger,
-                        }))
-                        : [],
+                        })) :
+                        [],
                 };
                 try {
                     const video = await this.extractVideoId(videoItem);
                     videoItem.videoUrlNoWaterMark = video;
-                }
-                catch (error) {
-                }
+                } catch (error) {}
                 this.collector.push(videoItem);
                 return videoItem;
             }
             throw new Error();
-        }
-        catch (error) {
+        } catch (error) {
             throw `Can't extract metadata from the video: ${this.input}`;
         }
     }
     sendDataToWebHookUrl() {
         return new Promise(resolve => {
             async_1.forEachLimit(this.collector, 3, (item, cb) => {
-                request_promise_1.default(Object.assign(Object.assign(Object.assign({ uri: this.webHookUrl, method: this.method, headers: {
-                        'user-agent': 'TikTok-Scraper',
-                    } }, (this.method === 'POST' ? { body: item } : {})), (this.method === 'GET' ? { qs: { json: encodeURIComponent(JSON.stringify(item)) } } : {})), { json: true }))
+                request_promise_1.default(Object.assign(Object.assign(Object.assign({
+                        uri: this.webHookUrl,
+                        method: this.method,
+                        headers: {
+                            'user-agent': 'TikTok-Scraper',
+                        }
+                    }, (this.method === 'POST' ? {
+                        body: item
+                    } : {})), (this.method === 'GET' ? {
+                        qs: {
+                            json: encodeURIComponent(JSON.stringify(item))
+                        }
+                    } : {})), {
+                        json: true
+                    }))
                     .then(() => {
-                    this.httpRequests.good += 1;
-                })
+                        this.httpRequests.good += 1;
+                    })
                     .catch(() => {
-                    this.httpRequests.bad += 1;
-                })
+                        this.httpRequests.bad += 1;
+                    })
                     .finally(() => cb(null));
             }, () => {
                 resolve();
