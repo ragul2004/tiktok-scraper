@@ -32,6 +32,7 @@ import {
     Headers,
     WebHtmlUserMetadata,
     VideoMetadata,
+    NumberObject,
 } from '../types';
 
 import { Downloader } from '../core';
@@ -51,7 +52,7 @@ export class TikTokScraper extends EventEmitter {
 
     private proxy: string[] | string;
 
-    private number: number;
+    private number: number | NumberObject;
 
     private asyncDownload: number;
 
@@ -454,9 +455,8 @@ export class TikTokScraper extends EventEmitter {
                     .slice(position + 4, position + 36)
                     .toString();
 
-                return `https://api2-16-h2.musical.ly/aweme/v1/play/?video_id=${id}&vr_type=0&is_play_url=1&source=PackSourceEnum_PUBLISH&media_type=4${
-                    this.hdVideo ? `&ratio=default&improve_bitrate=1` : ''
-                }`;
+                return `https://api2-16-h2.musical.ly/aweme/v1/play/?video_id=${id}&vr_type=0&is_play_url=1&source=PackSourceEnum_PUBLISH&media_type=4${this.hdVideo ? `&ratio=default&improve_bitrate=1` : ''
+                    }`;
             }
         } catch {
             // continue regardless of error
@@ -547,6 +547,15 @@ export class TikTokScraper extends EventEmitter {
      */
     private async submitScrapingRequest(query: RequestQuery, updatedApiResponse = false): Promise<any> {
         try {
+            if (typeof this.number === "object") {
+                if (this.number.maxCursor) {
+                    query.maxCursor = this.number.maxCursor;
+                }
+                if (this.number.cursor) {
+                    query.cursor = this.number.cursor;
+                }
+                this.number = 30;
+            }
             const result = await this.scrapeData<ItemListData>(query);
             if (result.statusCode !== 0) {
                 throw new Error(`Can't scrape more posts`);
@@ -554,6 +563,14 @@ export class TikTokScraper extends EventEmitter {
             const { hasMore, maxCursor, cursor } = result;
             if ((updatedApiResponse && !result.itemList) || (!updatedApiResponse && !result.items)) {
                 throw new Error('No more posts');
+            }
+            if (result.items) {
+                result.items[0].maxCursor = maxCursor;
+                result.items[0].hasMore = hasMore;
+            }
+            if (result.itemList) {
+                result.itemList[0].cursor = cursor;
+                result.itemList[0].hasMore = hasMore;
             }
             await this.collectPosts(updatedApiResponse ? result.itemList : result.items);
 
@@ -732,6 +749,9 @@ export class TikTokScraper extends EventEmitter {
                     secretID: posts[i].video.id,
                     text: posts[i].desc,
                     createTime: posts[i].createTime,
+                    cursor: posts[i].cursor ? posts[i].cursor : undefined,
+                    maxCursor: posts[i].maxCursor ? posts[i].maxCursor : undefined,
+                    hasMore: posts[i].hasMore ? posts[i].hasMore : false,
                     authorMeta: {
                         id: posts[i].author.id,
                         secUid: posts[i].author.secUid,
@@ -748,19 +768,19 @@ export class TikTokScraper extends EventEmitter {
                     },
                     ...(posts[i].music
                         ? {
-                              musicMeta: {
-                                  musicId: posts[i].music.id,
-                                  musicName: posts[i].music.title,
-                                  musicAuthor: posts[i].music.authorName,
-                                  musicOriginal: posts[i].music.original,
-                                  musicAlbum: posts[i].music.album,
-                                  playUrl: posts[i].music.playUrl,
-                                  coverThumb: posts[i].music.coverThumb,
-                                  coverMedium: posts[i].music.coverMedium,
-                                  coverLarge: posts[i].music.coverLarge,
-                                  duration: posts[i].music.duration,
-                              },
-                          }
+                            musicMeta: {
+                                musicId: posts[i].music.id,
+                                musicName: posts[i].music.title,
+                                musicAuthor: posts[i].music.authorName,
+                                musicOriginal: posts[i].music.original,
+                                musicAlbum: posts[i].music.album,
+                                playUrl: posts[i].music.playUrl,
+                                coverThumb: posts[i].music.coverThumb,
+                                coverMedium: posts[i].music.coverMedium,
+                                coverLarge: posts[i].music.coverLarge,
+                                duration: posts[i].music.duration,
+                            },
+                        }
                         : {}),
                     covers: {
                         default: posts[i].video.cover,
@@ -784,11 +804,11 @@ export class TikTokScraper extends EventEmitter {
                     mentions: posts[i].desc.match(/(@\w+)/g) || [],
                     hashtags: posts[i].challenges
                         ? posts[i].challenges.map(({ id, title, desc, coverLarger }) => ({
-                              id,
-                              name: title,
-                              title: desc,
-                              cover: coverLarger,
-                          }))
+                            id,
+                            name: title,
+                            title: desc,
+                            cover: coverLarger,
+                        }))
                         : [],
                 };
 
@@ -1192,11 +1212,11 @@ export class TikTokScraper extends EventEmitter {
             mentions: videoData.desc.match(/(@\w+)/g) || [],
             hashtags: videoData.challenges
                 ? videoData.challenges.map(({ id, title, desc, profileLarger }) => ({
-                      id,
-                      name: title,
-                      title: desc,
-                      cover: profileLarger,
-                  }))
+                    id,
+                    name: title,
+                    title: desc,
+                    cover: profileLarger,
+                }))
                 : [],
         } as PostCollector;
 

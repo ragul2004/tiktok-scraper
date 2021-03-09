@@ -49,6 +49,12 @@ export interface Options {
     headers?: Headers;
     verifyFp?: string;
 }
+
+export interface NumberObject {
+    maxCursor: string;
+    cursor: string;
+}
+
 export interface TikTokConstructor {
     download: boolean;
     filepath: string;
@@ -150,6 +156,9 @@ export interface PostCollector {
     hashtags: Hashtags[];
     repeated?: boolean;
     downloaded: boolean;
+    cursor: string | undefined;
+    maxCursor: string | undefined;
+    hasMore: boolean;
 }
 
 export interface Result {

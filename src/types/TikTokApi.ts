@@ -91,11 +91,11 @@ export interface RequestQuery {
     sourceType?: number;
     count?: number;
     minCursor?: number;
-    maxCursor?: number;
+    maxCursor?: number | string;
     lang?: string;
     verifyFp?: string;
     challengeID?: string;
-    cursor?: number;
+    cursor?: number | string;
     aid?: number;
     appId?: number;
     user_agent?: string;
@@ -116,6 +116,8 @@ export interface RequestQuery {
     OS?: string;
     app_name?: string;
     device_platform?: string;
+    maxCursor: string;
+    cursor: string;
 }
 
 export interface VideoProps {
@@ -232,6 +234,9 @@ export interface FeedItems {
     duetEnabled: boolean;
     stitchEnabled: boolean;
     duetInfo: DuetInfo;
+    maxCursor: string;
+    hasMore: boolean;
+    cursor: string;
 }
 
 /**
