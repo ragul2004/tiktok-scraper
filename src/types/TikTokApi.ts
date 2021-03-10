@@ -90,7 +90,6 @@ export interface RequestQuery {
     type?: number;
     sourceType?: number;
     count?: number;
-    minCursor?: number;
     maxCursor?: number | string;
     lang?: string;
     verifyFp?: string;
@@ -116,8 +115,6 @@ export interface RequestQuery {
     OS?: string;
     app_name?: string;
     device_platform?: string;
-    maxCursor: string;
-    cursor: string;
 }
 
 export interface VideoProps {
